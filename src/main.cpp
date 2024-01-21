@@ -24,7 +24,7 @@
 // #include <GFX.h>
 
 #include <GxEPD2_3C.h>
-#include <Fonts/FreeMonoBold9pt7b.h>
+#include <Fonts/FreeSans9pt7b.h>
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
 
@@ -40,10 +40,10 @@ SoftwareSerial ss(RXPin, TXPin);
 // Wave e-ink display
 GxEPD2_3C<GxEPD2_750c_Z08, GxEPD2_750c_Z08::HEIGHT> display(GxEPD2_750c_Z08(/*CS=5*/ D9, /*DC=*/SCL, /*RST=*/SDA, /*BUSY=*/D7));
 
-void printDisplayMessage(String time)
+void printDisplayMessage(String location, String date, String time)
 {
   display.setRotation(1);
-  display.setFont(&FreeMonoBold9pt7b);
+  display.setFont(&FreeSans9pt7b);
   display.setTextColor(GxEPD_BLACK);
   int16_t tbx, tby;
   uint16_t tbw, tbh;
@@ -57,71 +57,33 @@ void printDisplayMessage(String time)
   {
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(x, y);
+    display.print(location);
+    display.setCursor(x, y + 20);
+    display.print(date);
+    display.setCursor(x, y + 40);
     display.print(time);
   } while (display.nextPage());
 }
 
-String buffer;
+String locationBuffer;
+String dateBuffer;
+String timeBuffer;
 
 void displayInfo()
 {
 
-  if (gps.location.isValid())
+  if (gps.location.isValid() && gps.date.isValid() && gps.time.isValid())
   {
-    buffer = "Location: " + String(gps.location.lat()) + " " + String(gps.location.lng());
-    Serial.println(buffer);
-    printDisplayMessage(buffer);
-    display.hibernate();
+    locationBuffer = "Location: " + String(gps.location.lat()) + " " + String(gps.location.lng());
+    dateBuffer = "Date: " + String(gps.date.month()) + "/" + String(gps.date.day()) + "/" + String(gps.date.year());
+    timeBuffer = "Time: " + String(gps.time.hour()) + ":" + String(gps.time.minute()) + ":" + String(gps.time.second());
+
+    printDisplayMessage(locationBuffer, dateBuffer, timeBuffer);
   }
   else
   {
     Serial.print(F("INVALID"));
   }
-
-  Serial.print(F("  Date/Time: "));
-  if (gps.date.isValid())
-  {
-    Serial.print(gps.date.month());
-    Serial.print(F("/"));
-    Serial.print(gps.date.day());
-    Serial.print(F("/"));
-    Serial.print(gps.date.year());
-  }
-  else
-  {
-    Serial.print(F("INVALID"));
-  }
-
-  Serial.print(F(" "));
-  if (gps.time.isValid())
-  {
-    if (gps.time.hour() < 10)
-    {
-      Serial.print(F("0"));
-    }
-    Serial.print(gps.time.hour());
-    Serial.print(F(":"));
-    if (gps.time.minute() < 10)
-    {
-      Serial.print(F("0"));
-    }
-    Serial.print(gps.time.minute());
-    Serial.print(F(":"));
-    if (gps.time.second() < 10)
-    {
-      Serial.print(F("0"));
-    }
-    Serial.print(gps.time.second());
-    Serial.print(F("."));
-    if (gps.time.centisecond() < 10)
-      Serial.print(F("0"));
-    Serial.print(gps.time.centisecond());
-  }
-  else
-  {
-    Serial.print(F("INVALID"));
-  }
-
   Serial.println();
 }
 
@@ -144,9 +106,10 @@ void loop()
     gps.encode(ss.read());
   }
 
-  if (millis() > 5000 && gps.time.isUpdated())
+  if (gps.time.isUpdated())
   {
     displayInfo();
+    display.hibernate();
   }
 
   if (millis() > 5000 && gps.charsProcessed() < 10)
