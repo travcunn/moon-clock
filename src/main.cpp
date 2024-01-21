@@ -24,7 +24,7 @@
 // #include <GFX.h>
 
 #include <GxEPD2_3C.h>
-#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeMonoBold12pt7b.h>
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
 
@@ -43,7 +43,7 @@ GxEPD2_3C<GxEPD2_750c_Z08, GxEPD2_750c_Z08::HEIGHT> display(GxEPD2_750c_Z08(/*CS
 void printDisplayMessage(String location, String date, String time)
 {
   display.setRotation(1);
-  display.setFont(&FreeSans9pt7b);
+  display.setFont(&FreeMonoBold12pt7b);
   display.setTextColor(GxEPD_BLACK);
   int16_t tbx, tby;
   uint16_t tbw, tbh;
@@ -58,9 +58,9 @@ void printDisplayMessage(String location, String date, String time)
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(x, y);
     display.print(location);
-    display.setCursor(x, y + 20);
+    display.setCursor(x, y + 30);
     display.print(date);
-    display.setCursor(x, y + 40);
+    display.setCursor(x, y + 60);
     display.print(time);
   } while (display.nextPage());
 }
@@ -72,19 +72,20 @@ String timeBuffer;
 void displayInfo()
 {
 
-  if (gps.location.isValid() && gps.date.isValid() && gps.time.isValid())
-  {
-    locationBuffer = "Location: " + String(gps.location.lat()) + " " + String(gps.location.lng());
-    dateBuffer = "Date: " + String(gps.date.month()) + "/" + String(gps.date.day()) + "/" + String(gps.date.year());
-    timeBuffer = "Time: " + String(gps.time.hour()) + ":" + String(gps.time.minute()) + ":" + String(gps.time.second());
+  Serial.println(gps.location.lat());
+  Serial.println(gps.location.lng());
+  Serial.println(gps.date.month());
+  Serial.println(gps.date.day());
+  Serial.println(gps.date.year());
+  Serial.println(gps.time.hour());
+  Serial.println(gps.time.minute());
+  Serial.println(gps.time.second());
 
-    printDisplayMessage(locationBuffer, dateBuffer, timeBuffer);
-  }
-  else
-  {
-    Serial.print(F("INVALID"));
-  }
-  Serial.println();
+  locationBuffer = "Location: " + String(gps.location.lat()) + " " + String(gps.location.lng());
+  dateBuffer = "Date: " + String(gps.date.month()) + "/" + String(gps.date.day()) + "/" + String(gps.date.year());
+  timeBuffer = "Time: " + String(gps.time.hour()) + ":" + String(gps.time.minute());
+
+  printDisplayMessage(locationBuffer, dateBuffer, timeBuffer);
 }
 
 void setup()
@@ -94,8 +95,9 @@ void setup()
   ss.begin(GPSBaud);
 
   display.init(115200, true, 2, false); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
-  // Serial.println(F("display.init() done"));
-  // Serial.println(F("display.hibernate() done"));
+
+  display.clearScreen(GxEPD_WHITE);
+  display.hibernate();
 }
 
 void loop()
@@ -110,6 +112,7 @@ void loop()
   {
     displayInfo();
     display.hibernate();
+    delay(180000);
   }
 
   if (millis() > 5000 && gps.charsProcessed() < 10)
