@@ -17,7 +17,17 @@
 			"unordered_set": "cpp",
 			"vector": "cpp",
 			"string_view": "cpp",
-			"initializer_list": "cpp"
+			"initializer_list": "cpp",
+			"*.tcc": "c",
+			"chrono": "c",
+			"iomanip": "c",
+			"limits": "c",
+			"numeric": "c",
+			"ratio": "c",
+			"streambuf": "c",
+			"tuple": "c",
+			"type_traits": "c",
+			"utility": "c"
 		}
 	}
 }
