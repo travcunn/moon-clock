@@ -25,41 +25,16 @@
 
 #include <GxEPD2_3C.h>
 #include <Fonts/FreeSans24pt7b.h>
+#include <Fonts/FreeSans9pt7b.h>
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
 #include <time.h>
-#include <moonPhase.h>
 
-#include "phases/phase_000.c"
-#include "phases/phase_015.c"
-#include "phases/phase_030.c"
-#include "phases/phase_045.c"
-#include "phases/phase_060.c"
-#include "phases/phase_075.c"
-#include "phases/phase_090.c"
-#include "phases/phase_105.c"
-#include "phases/phase_120.c"
-#include "phases/phase_135.c"
-#include "phases/phase_150.c"
-#include "phases/phase_165.c"
-#include "phases/phase_180.c"
-#include "phases/phase_195.c"
-#include "phases/phase_210.c"
-#include "phases/phase_225.c"
-#include "phases/phase_240.c"
-#include "phases/phase_255.c"
-#include "phases/phase_270.c"
-#include "phases/phase_285.c"
-#include "phases/phase_300.c"
-#include "phases/phase_315.c"
-#include "phases/phase_330.c"
-#include "phases/phase_345.c"
-#include "phases/phase_360.c"
+#include "MoonRise.h"
+#include "MoonPhase.h"
 
 static const int RXPin = 17, TXPin = 16;
 static const uint32_t GPSBaud = 9600;
-
-moonPhase mPhase;
 
 // The TinyGPSPlus object
 TinyGPSPlus gps;
@@ -76,7 +51,33 @@ const uint16_t WIDTH = 128;
 const uint16_t HEIGHT = 128;
 const uint16_t sleepTimeSeconds = 180;
 
-// Bitmap data for a larger smiley face with black, white, and red colors
+const String Hemisphere = "north";
+String Units = "M";
+
+// Sun
+const String TXT_SUNRISE = "Sunrise";
+const String TXT_SUNSET = "Sunset";
+
+// Moon
+const String TXT_MOON_NEW = "New Moon";
+const String TXT_MOON_WAXING_CRESCENT = "Evening Crescent";
+const String TXT_MOON_FIRST_QUARTER = "First Quarter";
+const String TXT_MOON_WAXING_GIBBOUS = "Waxing Gibbous";
+const String TXT_MOON_FULL = "Full Moon";
+const String TXT_MOON_WANING_GIBBOUS = "Waning Gibbous";
+const String TXT_MOON_THIRD_QUARTER = "Third Quarter";
+const String TXT_MOON_WANING_CRESCENT = "Morning Crescent";
+
+enum alignment
+{
+  LEFT,
+  RIGHT,
+  CENTER
+};
+
+MoonRise mr;
+_MoonPhase m;
+
 const unsigned char battery_0_bar_0deg_128x128[] PROGMEM = {
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -1082,6 +1083,218 @@ float decodeTimezone(double LAT, double LNG)
   return zone_hours;
 }
 
+String ConvertUnixTime(int unix_time)
+{
+  // Returns either '21:12  ' or ' 09:12pm' depending on Units mode
+  time_t tm = unix_time;
+  struct tm *now_tm = gmtime(&tm);
+  char output[40];
+  if (Units == "M")
+  {
+    strftime(output, sizeof(output), "%H:%M %d/%m/%y", now_tm);
+  }
+  else
+  {
+    strftime(output, sizeof(output), "%I:%M%P %m/%d/%y", now_tm);
+  }
+  return output;
+}
+
+int drawString(int x, int y, String text, alignment align)
+{
+  uint16_t w, h;
+  display.setTextWrap(false);
+
+  display.setCursor(x, y);
+  display.print(text);
+  //    display.drawRect(x, y - u8g2Fonts.getFontDescent(), w, h, GxEPD_BLACK);
+  return x + w;
+}
+// #########################################################################################
+
+int JulianDate(int d, int m, int y)
+{
+  int mm, yy, k1, k2, k3, j;
+  yy = y - (int)((12 - m) / 10);
+  mm = m + 9;
+  if (mm >= 12)
+    mm = mm - 12;
+  k1 = (int)(365.25 * (yy + 4712));
+  k2 = (int)(30.6001 * mm + 0.5);
+  k3 = (int)((int)((yy / 100) + 49) * 0.75) - 38;
+  // 'j' for dates in Julian calendar:
+  j = k1 + k2 + d + 59 + 1;
+  if (j > 2299160)
+    j = j - k3; // 'j' is the Julian date at 12h UT (Universal Time) For Gregorian calendar:
+  return j;
+}
+
+double NormalizedMoonPhase(int d, int m, int y)
+{
+  int j = JulianDate(d, m, y);
+  // Calculate the approximate phase of the moon
+  double Phase = (j + 4.867) / 29.53059;
+  return (Phase - (int)Phase);
+}
+
+String MoonPhase(int d, int m, int y, String hemisphere)
+{
+  int c, e;
+  double jd;
+  int b;
+  if (m < 3)
+  {
+    y--;
+    m += 12;
+  }
+  ++m;
+  c = 365.25 * y;
+  e = 30.6 * m;
+  jd = c + e + d - 694039.09; /* jd is total days elapsed */
+  jd /= 29.53059;             /* divide by the moon cycle (29.53 days) */
+  b = jd;                     /* int(jd) -> b, take integer part of jd */
+  jd -= b;                    /* subtract integer part to leave fractional part of original jd */
+  b = jd * 8 + 0.5;           /* scale fraction from 0-8 and round by adding 0.5 */
+  b = b & 7;                  /* 0 and 8 are the same phase so modulo 8 for 0 */
+  if (hemisphere == "south")
+    b = 7 - b;
+  if (b == 0)
+    return TXT_MOON_NEW; // New;              0%  illuminated
+  if (b == 1)
+    return TXT_MOON_WAXING_CRESCENT; // Waxing crescent; 25%  illuminated
+  if (b == 2)
+    return TXT_MOON_FIRST_QUARTER; // First quarter;   50%  illuminated
+  if (b == 3)
+    return TXT_MOON_WAXING_GIBBOUS; // Waxing gibbous;  75%  illuminated
+  if (b == 4)
+    return TXT_MOON_FULL; // Full;            100% illuminated
+  if (b == 5)
+    return TXT_MOON_WANING_GIBBOUS; // Waning gibbous;  75%  illuminated
+  if (b == 6)
+    return TXT_MOON_THIRD_QUARTER; // Third quarter;   50%  illuminated
+  if (b == 7)
+    return TXT_MOON_WANING_CRESCENT; // Waning crescent; 25%  illuminated
+  return "";
+}
+
+String MoonAge(int d, int m, int y, String hemisphere)
+{
+  int c, e;
+  double jd;
+  int b;
+  if (m < 3)
+  {
+    y--;
+    m += 12;
+  }
+  ++m;
+  c = 365.25 * y;
+  e = 30.6 * m;
+  jd = c + e + d - 694039.09; /* jd is total days elapsed */
+  jd /= 29.53059;             /* divide by the moon cycle (29.53 days) */
+  b = jd;                     /* int(jd) -> b, take integer part of jd */
+  jd -= b;                    /* subtract integer part to leave fractional part of original jd */
+  jd = abs(jd - 0.5);         /* 0 = new - 50 = full - 100 again new  --> 0 = 0% ; 0.5 = 100% */
+  b = 100 - jd * 200;
+  if (hemisphere == "south")
+    b = 100 - b;
+  return String(b) + "% Illumination";
+}
+
+double DrawMoon(int x, int y, int dd, int mm, int yy, String hemisphere)
+{
+  const int diameter = 47;
+  double Phase = NormalizedMoonPhase(dd, mm, yy);
+  hemisphere.toLowerCase();
+  if (hemisphere == "south")
+    Phase = 1 - Phase;
+
+  // Draw dark part of moon
+  display.fillCircle(x + diameter - 1, y + diameter, diameter / 2 + 1, GxEPD_BLACK);
+  const int number_of_lines = 90;
+  for (double Ypos = 0; Ypos <= number_of_lines / 2; Ypos++)
+  {
+    double Xpos = sqrt(number_of_lines / 2 * number_of_lines / 2 - Ypos * Ypos);
+    // Determine the edges of the lighted part of the moon
+    double Rpos = 2 * Xpos;
+    double Xpos1, Xpos2;
+    if (Phase < 0.5)
+    {
+      Xpos1 = -Xpos;
+      Xpos2 = Rpos - 2 * Phase * Rpos - Xpos;
+    }
+    else
+    {
+      Xpos1 = Xpos;
+      Xpos2 = Xpos - 2 * Phase * Rpos + Rpos;
+    }
+    // Draw light part of moon
+    // Marani: Fixed the calculation to draw the moon phases smoothly without straying pixels
+    double pW1x = (Xpos1 + number_of_lines) / number_of_lines * diameter + x;
+    double pW1y = ceil((number_of_lines - Ypos) / number_of_lines * diameter + y);
+    double pW2x = (Xpos2 + number_of_lines) / number_of_lines * diameter + x;
+    double pW2y = floor((Ypos + number_of_lines) / number_of_lines * diameter + y);
+    bool draw_fill = false;
+    if (Phase < 0.48)
+    {
+      pW1x = ceil(pW1x);
+      pW2x = floor(pW2x - 1);
+      draw_fill = true;
+    }
+    else if (Phase > 0.52 && Phase <= 1.0)
+    {
+      pW1x = floor(pW1x - 1);
+      pW2x = ceil(pW2x);
+      draw_fill = true;
+    }
+    if (draw_fill)
+    {
+      display.drawLine(pW1x, pW1y, pW2x, pW1y, GxEPD_WHITE);
+      display.drawLine(pW1x, pW2y, pW2x, pW2y, GxEPD_WHITE);
+    }
+  }
+  display.drawCircle(x + diameter - 1, y + diameter, diameter / 2, GxEPD_BLACK);
+  return Phase;
+}
+
+void DisplayAstronomySection(int x, int y)
+{
+  display.drawRect(x, y + 16, 409, 59, GxEPD_BLACK);
+  display.setFont(&FreeSans9pt7b);
+  display.setTextSize(1);
+  time_t _now = time(NULL);
+  struct tm *now_utc = gmtime(&_now);
+  const int day_utc = now_utc->tm_mday;
+  const int month_utc = now_utc->tm_mon + 1;
+  const int year_utc = now_utc->tm_year + 1900;
+  drawString(x + 170, y + 50, MoonPhase(day_utc, month_utc, year_utc, Hemisphere), LEFT);
+  DrawMoon(x + 320, y - 2, day_utc, month_utc, year_utc, Hemisphere);
+
+  time_t utcOffset = mktime(now_utc) - _now;
+  // TODO FIX THIS:
+  // m.calculate(_now + utcOffset + WxConditions[0].Timezone);
+  m.calculate(_now + utcOffset);
+  mr.calculate(gps.location.lat(), gps.location.lng(), _now + utcOffset);
+  time_t moonRiseTime = mr.riseTime - utcOffset;
+  struct tm *moonRiseTimeInfo = localtime(&moonRiseTime);
+  time_t moonSetTime = mr.setTime - utcOffset;
+  struct tm *moonSetTimeInfo = localtime(&moonSetTime);
+  char LCDTime[] = "HH:MM";
+  int xt = 0;
+  sprintf(LCDTime, "%02d:%02d", moonRiseTimeInfo->tm_hour, moonRiseTimeInfo->tm_min);
+  xt = drawString(x + 170, y + 17, LCDTime, LEFT);
+  drawString(xt + 5, y + 17, "Moonrise", LEFT);
+  sprintf(LCDTime, "%02d:%02d", moonSetTimeInfo->tm_hour, moonSetTimeInfo->tm_min);
+  xt = drawString(x + 170, y + 28, LCDTime, LEFT);
+  drawString(xt + 5, y + 28, "Moonset", LEFT);
+  drawString(x + 8, y + 39, String(m.fraction * 100, 1) + "% Illuminated", LEFT);
+  xt = drawString(x + 8, y + 50, "Zodiac", LEFT);
+  drawString(xt + 5, y + 50, m.zodiacName, LEFT);
+  drawString(x + 170, y + 39, String(m.distance * 6371) + "km Distance", LEFT);
+  drawString(x + 8, y + 61, String(m.age) + " Days Moonage", LEFT);
+  drawString(x + 170, y + 61, String(m.longitude, 2) + "/" + String(m.latitude, 2) + " Lon/Lat", LEFT);
+}
+
 void initDisplay()
 {
   display.init(115200, true, 2, false);
@@ -1128,7 +1341,8 @@ void printDisplayMessage(String location, String date, String time, String weekd
     //  display.print(date);
     //  display.setCursor(x, y + 60);
     //  display.print(location);
-    display.drawInvertedBitmap(x_time, 300, battery_0_bar_0deg_128x128, WIDTH, HEIGHT, GxEPD_BLACK);
+    DisplayAstronomySection(50, 300);
+    // display.drawInvertedBitmap(x_time, 300, battery_0_bar_0deg_128x128, WIDTH, HEIGHT, GxEPD_BLACK);
   } while (display.nextPage());
 }
 
@@ -1183,18 +1397,6 @@ void displayInfo()
   timeBuffer = hour_str + ":" + minute_str;
 
   printDisplayMessage(locationBuffer, dateBuffer, timeBuffer, String(timeWeekDay));
-
-  moonData_t moon; // variable to receive the data
-
-  time_t convertedTime = mktime(&timeinfo);
-  moon = mPhase.getPhase(convertedTime); // gets the current moon phase
-
-  Serial.print("Moon phase angle: ");
-  Serial.print(moon.angle); // angle is a integer between 0-360
-  Serial.println(" degrees.");
-  Serial.print("Moon surface lit: ");
-  Serial.print(moon.percentLit * 100); // percentLit is a real between 0-1
-  Serial.println();
 }
 
 void setSystemTime(int year, int month, int day, int hour, int minute, int second)
