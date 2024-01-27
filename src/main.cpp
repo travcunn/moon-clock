@@ -25,7 +25,7 @@
 
 #include <GxEPD2_3C.h>
 #include <Fonts/FreeSans24pt7b.h>
-#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
 #include <TinyGPSPlus.h>
 #include <SoftwareSerial.h>
 #include <time.h>
@@ -49,7 +49,7 @@ bool isTimeConfigured = false;
 
 const uint16_t WIDTH = 128;
 const uint16_t HEIGHT = 128;
-const uint16_t sleepTimeSeconds = 180;
+const uint16_t sleepTimeSeconds = 60 * 5;
 
 const String Hemisphere = "north";
 String Units = "M";
@@ -1100,15 +1100,10 @@ String ConvertUnixTime(int unix_time)
   return output;
 }
 
-int drawString(int x, int y, String text, alignment align)
+void drawString(int x, int y, String text)
 {
-  uint16_t w, h;
-  display.setTextWrap(false);
-
   display.setCursor(x, y);
   display.print(text);
-  //    display.drawRect(x, y - u8g2Fonts.getFontDescent(), w, h, GxEPD_BLACK);
-  return x + w;
 }
 // #########################################################################################
 
@@ -1203,7 +1198,7 @@ String MoonAge(int d, int m, int y, String hemisphere)
 
 double DrawMoon(int x, int y, int dd, int mm, int yy, String hemisphere)
 {
-  const int diameter = 47;
+  const int diameter = 94;
   double Phase = NormalizedMoonPhase(dd, mm, yy);
   hemisphere.toLowerCase();
   if (hemisphere == "south")
@@ -1259,20 +1254,18 @@ double DrawMoon(int x, int y, int dd, int mm, int yy, String hemisphere)
 
 void DisplayAstronomySection(int x, int y)
 {
-  display.drawRect(x, y + 16, 409, 59, GxEPD_BLACK);
-  display.setFont(&FreeSans9pt7b);
+  // display.drawRect(x, y, 409, 59, GxEPD_BLACK);
+  display.setFont(&FreeSans12pt7b);
   display.setTextSize(1);
   time_t _now = time(NULL);
   struct tm *now_utc = gmtime(&_now);
   const int day_utc = now_utc->tm_mday;
   const int month_utc = now_utc->tm_mon + 1;
   const int year_utc = now_utc->tm_year + 1900;
-  drawString(x + 170, y + 50, MoonPhase(day_utc, month_utc, year_utc, Hemisphere), LEFT);
-  DrawMoon(x + 320, y - 2, day_utc, month_utc, year_utc, Hemisphere);
+  drawString(x + 30, y, MoonPhase(day_utc, month_utc, year_utc, Hemisphere));
+  DrawMoon(x + 250, y, day_utc, month_utc, year_utc, Hemisphere);
 
   time_t utcOffset = mktime(now_utc) - _now;
-  // TODO FIX THIS:
-  // m.calculate(_now + utcOffset + WxConditions[0].Timezone);
   m.calculate(_now + utcOffset);
   mr.calculate(gps.location.lat(), gps.location.lng(), _now + utcOffset);
   time_t moonRiseTime = mr.riseTime - utcOffset;
@@ -1280,19 +1273,15 @@ void DisplayAstronomySection(int x, int y)
   time_t moonSetTime = mr.setTime - utcOffset;
   struct tm *moonSetTimeInfo = localtime(&moonSetTime);
   char LCDTime[] = "HH:MM";
-  int xt = 0;
   sprintf(LCDTime, "%02d:%02d", moonRiseTimeInfo->tm_hour, moonRiseTimeInfo->tm_min);
-  xt = drawString(x + 170, y + 17, LCDTime, LEFT);
-  drawString(xt + 5, y + 17, "Moonrise", LEFT);
+  drawString(x + 30, y + 30, String(LCDTime) + " Moonrise");
   sprintf(LCDTime, "%02d:%02d", moonSetTimeInfo->tm_hour, moonSetTimeInfo->tm_min);
-  xt = drawString(x + 170, y + 28, LCDTime, LEFT);
-  drawString(xt + 5, y + 28, "Moonset", LEFT);
-  drawString(x + 8, y + 39, String(m.fraction * 100, 1) + "% Illuminated", LEFT);
-  xt = drawString(x + 8, y + 50, "Zodiac", LEFT);
-  drawString(xt + 5, y + 50, m.zodiacName, LEFT);
-  drawString(x + 170, y + 39, String(m.distance * 6371) + "km Distance", LEFT);
-  drawString(x + 8, y + 61, String(m.age) + " Days Moonage", LEFT);
-  drawString(x + 170, y + 61, String(m.longitude, 2) + "/" + String(m.latitude, 2) + " Lon/Lat", LEFT);
+  drawString(x + 30, y + 60, String(LCDTime) + " Moonset");
+  drawString(x + 30, y + 90, String(m.fraction * 100, 1) + "% Illuminated");
+  drawString(x + 30, y + 120, "Zodiac " + String(m.zodiacName));
+  drawString(x + 30, y + 150, String(m.distance * 6371) + "km Distance");
+  drawString(x + 30, y + 180, String(m.age) + " Days Moonage");
+  drawString(x + 30, y + 210, String(m.longitude, 2) + "/" + String(m.latitude, 2) + " Lon/Lat");
 }
 
 void initDisplay()
@@ -1312,7 +1301,7 @@ void initDisplay()
 void printDisplayMessage(String location, String date, String time, String weekday)
 {
   int16_t tbx, tby;
-  uint16_t tbw, tbh, x_time, y_time, x_weekday, y_weekday;
+  uint16_t tbw, tbh, x_time, y_time;
 
   display.setFont(&FreeSans24pt7b);
   display.setTextColor(GxEPD_BLACK);
@@ -1321,27 +1310,21 @@ void printDisplayMessage(String location, String date, String time, String weekd
   // Time: center the bounding box by transposition of the origin:
   display.getTextBounds(time, 0, 0, &tbx, &tby, &tbw, &tbh);
   x_time = ((display.width() - tbw) / 2) - tbx;
-  y_time = 200;
-  // Weekday: center the bounding box by transposition of the origin:
-  display.getTextBounds(weekday, 0, 0, &tbx, &tby, &tbw, &tbh);
-  x_weekday = ((display.width() - tbw) / 2) - tbx;
-  y_weekday = 250;
-
-  Serial.println("x_time: " + String(x_time) + " y_time: " + String(y_time));
-  Serial.println("x_weekday: " + String(x_weekday) + " y_weekday: " + String(y_weekday));
 
   do
   {
     display.fillScreen(GxEPD_WHITE);
-    display.setCursor(x_time, y_time);
+    display.setCursor(x_time, 200);
     display.print(time);
     display.setTextSize(1);
-    display.setCursor(x_time, y_weekday);
+    display.setCursor(x_time + 30, 250);
     display.print(weekday);
-    //  display.print(date);
+    display.setCursor(x_time + 30, 300);
+    display.print(date);
     //  display.setCursor(x, y + 60);
     //  display.print(location);
-    DisplayAstronomySection(50, 300);
+    display.drawFastHLine(x_time + 30, 340, 300, GxEPD_BLACK);
+    DisplayAstronomySection(x_time, 400);
     // display.drawInvertedBitmap(x_time, 300, battery_0_bar_0deg_128x128, WIDTH, HEIGHT, GxEPD_BLACK);
   } while (display.nextPage());
 }
@@ -1355,8 +1338,8 @@ void displayInfo()
   locationBuffer = String(gps.location.lat()) + " " + String(gps.location.lng());
 
   char timeWeekDay[10];
-  uint8_t hour;
-  uint8_t minute;
+  char year_str[4];
+  uint8_t hour, minute, month, day;
 
   struct tm timeinfo;
   if (getLocalTime(&timeinfo))
@@ -1367,14 +1350,16 @@ void displayInfo()
 
     hour = timeinfo.tm_hour;
     minute = timeinfo.tm_min;
-    dateBuffer = String(timeinfo.tm_mon) + "/" + String(timeinfo.tm_mday) + "/" + String(timeinfo.tm_year);
+    month = timeinfo.tm_mon;
+    day = timeinfo.tm_mday;
+
     strftime(timeWeekDay, 10, "%A", &timeinfo);
+    strftime(year_str, 4, "%y", &timeinfo);
 
     Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
   }
 
-  String hour_str;
-  String minute_str;
+  String hour_str, minute_str, month_str, day_str;
 
   if (hour < 10)
   {
@@ -1394,7 +1379,28 @@ void displayInfo()
     minute_str = String(minute);
   }
 
+  if (month < 10)
+  {
+    month_str = "0" + String(month + 1);
+  }
+  else
+  {
+    month_str = String(month + 1);
+  }
+
+  if (day < 10)
+  {
+    day_str = "0" + String(day);
+  }
+  else
+  {
+    day_str = String(day);
+  }
+
   timeBuffer = hour_str + ":" + minute_str;
+  dateBuffer = String(month_str) + "/" + String(day_str) + "/" + String(year_str);
+
+  Serial.println(dateBuffer);
 
   printDisplayMessage(locationBuffer, dateBuffer, timeBuffer, String(timeWeekDay));
 }
