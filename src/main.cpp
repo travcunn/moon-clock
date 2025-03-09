@@ -403,41 +403,37 @@ void drawMoonPhaseSimple(int day, int month, int year)
   display.firstPage();
   do
   {
-    if (day == 10 && month == 3)
     {
-      display.fillScreen(GxEPD_BLACK);
-      drawStephenHawkingImage(moonX, moonY);
-    }
-    else if (day == 1 && month == 1)
-    {
-      display.fillScreen(GxEPD_BLACK);
-      drawEdwinHubbleImage(moonX, moonY);
-    }
-    else if (day == 2 && month == 1)
-    {
-      display.fillScreen(GxEPD_BLACK);
-      drawLunaImage(moonX, moonY);
-    }
-    else if (day == 4 && month == 1)
-    {
-      display.fillScreen(GxEPD_BLACK);
-      drawSpiritRoverImage(moonX, moonY);
-    }
-    else if (day == 20 && month == 2)
-    {
-      display.fillScreen(GxEPD_BLACK);
-      drawJohnGlennImage(moonX, moonY);
-    }
-    else if (day == 7 && month == 4)
-    {
-      display.fillScreen(GxEPD_BLACK);
-      drawHiggsBosonImage(moonX, moonY);
-    }
-    else
-    {
-      // Draw moon background and phase
-      drawMoonBackground(moonX, moonY, moonWidth, moonHeight);
-      drawMoonPhase(phase, moonX, moonY, moonWidth, moonHeight);
+      struct SpecialDate
+      {
+        int day;
+        int month;
+        void (*drawImage)(int, int);
+      };
+      static const SpecialDate specialDates[] = {
+          {10, 3, drawStephenHawkingImage},
+          {1, 1, drawEdwinHubbleImage},
+          {2, 1, drawLunaImage},
+          {4, 1, drawSpiritRoverImage},
+          {20, 2, drawJohnGlennImage},
+          {7, 4, drawHiggsBosonImage}};
+      bool specialDrawn = false;
+      for (auto &sd : specialDates)
+      {
+        if (day == sd.day && month == sd.month)
+        {
+          display.fillScreen(GxEPD_BLACK);
+          sd.drawImage(moonX, moonY);
+          specialDrawn = true;
+          break;
+        }
+      }
+      if (!specialDrawn)
+      {
+        // Draw moon background and phase
+        drawMoonBackground(moonX, moonY, moonWidth, moonHeight);
+        drawMoonPhase(phase, moonX, moonY, moonWidth, moonHeight);
+      }
     }
 
     // Draw event text at the bottom
@@ -649,7 +645,7 @@ void loop()
   {
     setSystemTime(gps.date.year(), gps.date.month(), gps.date.day(),
                   gps.time.hour(), gps.time.minute(), gps.time.second());
-    Serial.println("Time updated from GPS")
+    Serial.println("Time updated from GPS");
   }
 
   // Get current UTC time
