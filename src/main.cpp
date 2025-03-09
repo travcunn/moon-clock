@@ -124,30 +124,6 @@ String MoonPhase(int d, int m, int y, String hemisphere)
   return "";
 }
 
-String MoonAge(int d, int m, int y, String hemisphere)
-{
-  int c, e;
-  double jd;
-  int b;
-  if (m < 3)
-  {
-    y--;
-    m += 12;
-  }
-  ++m;
-  c = 365.25 * y;
-  e = 30.6 * m;
-  jd = c + e + d - 694039.09; /* jd is total days elapsed */
-  jd /= 29.53059;             /* divide by the moon cycle (29.53 days) */
-  b = jd;                     /* int(jd) -> b, take integer part of jd */
-  jd -= b;                    /* subtract integer part to leave fractional part of original jd */
-  jd = abs(jd - 0.5);         /* 0 = new - 50 = full - 100 again new  --> 0 = 0% ; 0.5 = 100% */
-  b = 100 - jd * 200;
-  if (hemisphere == "south")
-    b = 100 - b;
-  return String(b) + "% Illumination";
-}
-
 void DisplayAstronomySection(int x, int y)
 {
   // display.drawRect(x, y, 409, 59, GxEPD_BLACK);
@@ -224,9 +200,9 @@ void drawMoonPhaseSimple(int day, int month, int year)
   int moonX = 100, moonY = 50;
   int moonWidth = 400, moonHeight = 400;
 
-  // We’ll do a simple interpretation:
-  // - If phase < 0.5, it’s waxing (lit area grows from right to left).
-  // - If phase >= 0.5, it’s waning (lit area shrinks from right to left).
+  // We'll do a simple interpretation:
+  // - If phase < 0.5, it's waxing (lit area grows from right to left).
+  // - If phase >= 0.5, it's waning (lit area shrinks from right to left).
   //
   // We want a fraction that goes from 0.0 (no moon visible) to 1.0 (half or more visible),
   // so that we can figure out how wide our black rectangle should be.
@@ -257,7 +233,7 @@ void drawMoonPhaseSimple(int day, int month, int year)
       display.drawBitmap(moonX, moonY, Bitmap3c800x480_1_black,
                          moonWidth, moonHeight, GxEPD_WHITE);
 
-      // 3) Cover the portion that’s NOT lit with a black rectangle.
+      // 3) Cover the portion that's NOT lit with a black rectangle.
       if (waxing)
       {
         // Waxing: phase in [0..0.5).
@@ -267,7 +243,7 @@ void drawMoonPhaseSimple(int day, int month, int year)
         // fraction = 0 means no part is lit (new moon).
         // fraction = 1 means half the disc is lit (right half).
         //
-        // So we’ll draw a black rectangle on the left portion of the moon.
+        // So we'll draw a black rectangle on the left portion of the moon.
         // boundary = how far from the left we keep black.
         // If fraction=0 → boundary = entire width → all black
         // If fraction=1 → boundary = half the width → half black
@@ -285,7 +261,7 @@ void drawMoonPhaseSimple(int day, int month, int year)
         // Waning: phase in [0.5..1].
         // fraction = 2 * (1 - phase) → goes 1..0 as phase goes 0.5..1
         //   (Alternatively, you could do fraction = (phase - 0.5)*2 if you want 0..1)
-        // Let’s define fraction = 2 * (1 - phase):
+        // Let's define fraction = 2 * (1 - phase):
         fraction = 2.0 * (1.0 - phase);
 
         // fraction=1 means half the disc is lit (left half).
@@ -416,16 +392,6 @@ void setSystemTime(int year, int month, int day, int hour, int minute, int secon
   settimeofday(&tv, nullptr);
 }
 
-void setup()
-{
-  Serial.begin(115200);
-
-  ss.begin(GPSBaud);
-
-  initDisplay();
-  display.hibernate();
-}
-
 void sleep()
 {
   Serial.println("Entering deep sleep");
@@ -433,76 +399,6 @@ void sleep()
   esp_sleep_enable_timer_wakeup(sleepTimeSeconds * 1000000);
   // Enter deep sleep
   esp_deep_sleep_start();
-}
-
-int gpsReadData;
-
-static void printFloat(float val, bool valid, int len, int prec)
-{
-  if (!valid)
-  {
-    while (len-- > 1)
-      Serial.print('*');
-    Serial.print(' ');
-  }
-  else
-  {
-    Serial.print(val, prec);
-    int vi = abs((int)val);
-    int flen = prec + (val < 0.0 ? 2 : 1); // . and -
-    flen += vi >= 1000 ? 4 : vi >= 100 ? 3
-                         : vi >= 10    ? 2
-                                       : 1;
-    for (int i = flen; i < len; ++i)
-      Serial.print(' ');
-  }
-}
-
-static void printInt(unsigned long val, bool valid, int len)
-{
-  char sz[32] = "*****************";
-  if (valid)
-    sprintf(sz, "%ld", val);
-  sz[len] = 0;
-  for (int i = strlen(sz); i < len; ++i)
-    sz[i] = ' ';
-  if (len > 0)
-    sz[len - 1] = ' ';
-  Serial.print(sz);
-}
-
-static void printDateTime(TinyGPSDate &d, TinyGPSTime &t)
-{
-  if (!d.isValid())
-  {
-    Serial.print(F("********** "));
-  }
-  else
-  {
-    char sz[32];
-    sprintf(sz, "%02d/%02d/%02d ", d.month(), d.day(), d.year());
-    Serial.print(sz);
-  }
-
-  if (!t.isValid())
-  {
-    Serial.print(F("******** "));
-  }
-  else
-  {
-    char sz[32];
-    sprintf(sz, "%02d:%02d:%02d ", t.hour(), t.minute(), t.second());
-    Serial.print(sz);
-  }
-
-  printInt(d.age(), d.isValid(), 5);
-}
-
-static void printStr(const char *str, int len)
-{
-  int slen = strlen(str);
-  for (int i = 0; i < len; ++i)
-    Serial.print(i < slen ? str[i] : ' ');
 }
 
 // This custom version of delay() ensures that the gps object
@@ -529,6 +425,16 @@ void initDisplay()
   display.setFullWindow();
   display.firstPage();
   return;
+}
+
+void setup()
+{
+  Serial.begin(115200);
+
+  ss.begin(GPSBaud);
+
+  initDisplay();
+  display.hibernate();
 }
 
 void loop()
