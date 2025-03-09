@@ -495,7 +495,7 @@ void printDisplayMessage(String location, String date, String time, String weekd
 
   display.setFont(&FreeSans24pt7b);
   display.setTextColor(GxEPD_WHITE);
-  display.setTextSize(3);
+  display.setTextSize(1);
 
   do
   {
