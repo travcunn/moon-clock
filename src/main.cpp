@@ -18,6 +18,7 @@
 #include "timezone.h"
 #include "events.h"
 
+#include "bitmaps/edwin_hubble.h"
 #include "bitmaps/moon.h"
 #include "bitmaps/steve_hawking.h"
 
@@ -249,6 +250,19 @@ void drawStephenHawkingImage(int moonX, int moonY)
 }
 
 /**
+ * @brief Draws Edwin Hubble's image for special date (January 1)
+ *
+ * @param moonX X-coordinate for the image
+ * @param moonY Y-coordinate for the image
+ */
+void drawEdwinHubbleImage(int moonX, int moonY)
+{
+  display.drawBitmap(moonX, moonY, edwin_hubble_bitmap,
+                     EDWIN_HUBBLE_WIDTH, EDWIN_HUBBLE_HEIGHT,
+                     GxEPD_WHITE);
+}
+
+/**
  * @brief Draws the appropriate moon phase visualization
  *
  * @param phase Moon phase value between 0 and 1
@@ -349,6 +363,12 @@ void drawMoonPhaseSimple(int day, int month, int year)
       display.fillScreen(GxEPD_BLACK);
       drawStephenHawkingImage(moonX, moonY);
     }
+    else if (day == 1 && month == 1)
+    {
+      display.fillScreen(GxEPD_BLACK);
+      drawEdwinHubbleImage(moonX, moonY);
+    }
+
     else
     {
       // Draw moon background and phase
