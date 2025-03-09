@@ -6,8 +6,7 @@
 #include <SoftwareSerial.h>
 #include <time.h>
 
-#include "MoonRise.h"
-#include "MoonPhase.h"
+#include "moonphase.h"
 #include "timezone.h"
 #include "events.h"
 
@@ -51,25 +50,7 @@ const String TXT_MOON_WANING_GIBBOUS = "Waning Gibbous";
 const String TXT_MOON_THIRD_QUARTER = "Third Quarter";
 const String TXT_MOON_WANING_CRESCENT = "Morning Crescent";
 
-MoonRise mr;
 _MoonPhase m;
-
-String ConvertUnixTime(int unix_time)
-{
-  // Returns either '21:12  ' or ' 09:12pm' depending on Units mode
-  time_t tm = unix_time;
-  struct tm *now_tm = gmtime(&tm);
-  char output[40];
-  if (Units == "M")
-  {
-    strftime(output, sizeof(output), "%H:%M %d/%m/%y", now_tm);
-  }
-  else
-  {
-    strftime(output, sizeof(output), "%I:%M%P %m/%d/%y", now_tm);
-  }
-  return output;
-}
 
 void drawString(int x, int y, String text)
 {
@@ -182,34 +163,11 @@ void DisplayAstronomySection(int x, int y)
 
   time_t utcOffset = mktime(now_utc) - _now;
   m.calculate(_now + utcOffset);
-  mr.calculate(gps.location.lat(), gps.location.lng(), _now + utcOffset);
-  time_t moonRiseTime = mr.riseTime - utcOffset;
-  struct tm *moonRiseTimeInfo = localtime(&moonRiseTime);
-  time_t moonSetTime = mr.setTime - utcOffset;
-  struct tm *moonSetTimeInfo = localtime(&moonSetTime);
   char LCDTime[] = "HH:MM";
-  // sprintf(LCDTime, "%02d:%02d", moonRiseTimeInfo->tm_hour, moonRiseTimeInfo->tm_min);
-  // drawString(x + 30, y + 30, String(LCDTime) + " Moonrise");
-  // sprintf(LCDTime, "%02d:%02d", moonSetTimeInfo->tm_hour, moonSetTimeInfo->tm_min);
-  // drawString(x + 30, y + 60, String(LCDTime) + " Moonset");
   drawString(x + 30, y + 90, String(m.fraction * 100, 1) + "% Illuminated");
   drawString(x + 30, y + 120, "Zodiac " + String(m.zodiacName));
   drawString(x + 30, y + 150, String(m.distance * 6371) + "km Distance");
   drawString(x + 30, y + 180, String(m.age) + " Days Moon Age");
-}
-
-void initDisplay()
-{
-  display.init(115200, true, 2, false);
-
-  display.setRotation(0);
-  display.setTextSize(1);
-  display.setTextColor(GxEPD_BLACK);
-  display.setTextWrap(false);
-  display.fillScreen(GxEPD_WHITE);
-  display.setFullWindow();
-  display.firstPage();
-  return;
 }
 
 void printDisplayMessage(String location, String date, String time, String weekday)
@@ -557,6 +515,20 @@ static void smartDelay(unsigned long ms)
     while (ss.available())
       gps.encode(ss.read());
   } while (millis() - start < ms);
+}
+
+void initDisplay()
+{
+  display.init(115200, true, 2, false);
+
+  display.setRotation(0);
+  display.setTextSize(1);
+  display.setTextColor(GxEPD_BLACK);
+  display.setTextWrap(false);
+  display.fillScreen(GxEPD_WHITE);
+  display.setFullWindow();
+  display.firstPage();
+  return;
 }
 
 void loop()
