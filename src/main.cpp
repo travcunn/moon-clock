@@ -655,6 +655,13 @@ void loop()
     Serial.println("Time is configured");
   }
 
+  if (isTimeConfigured && gps.time.isValid() && gps.location.isValid())
+  {
+    setSystemTime(gps.date.year(), gps.date.month(), gps.date.day(),
+                  gps.time.hour(), gps.time.minute(), gps.time.second());
+    Serial.println("Time updated from GPS")
+  }
+
   // Get current UTC time
   time_t now = time(NULL);
   struct tm *now_utc = gmtime(&now);
