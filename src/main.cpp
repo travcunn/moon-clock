@@ -473,15 +473,40 @@ void setSystemTime(int year, int month, int day, int hour, int minute, int secon
 }
 
 /**
- * @brief Puts the device into deep sleep mode for power saving
+ * @brief Puts the device into deep sleep mode until midnight
  *
- * The device will wake up after the time specified by sleepTimeSeconds.
+ * Calculates the time remaining until midnight and configures the device
+ * to wake up at exactly midnight (00:00:00).
  */
 void sleep()
 {
-  Serial.println("Entering deep sleep");
-  // Wake up after amount of time
-  esp_sleep_enable_timer_wakeup(sleepTimeSeconds * 1000000);
+  Serial.println("Calculating time until midnight...");
+
+  // Get current time
+  time_t now;
+  struct tm timeinfo;
+  time(&now);
+  localtime_r(&now, &timeinfo);
+
+  // Calculate seconds until midnight
+  // We need to find how many seconds until 00:00:00
+  int seconds_to_midnight = (23 - timeinfo.tm_hour) * 3600 +
+                            (59 - timeinfo.tm_min) * 60 +
+                            (60 - timeinfo.tm_sec);
+
+  // If it's already past 23:59:00, we need to add 24 hours
+  if (seconds_to_midnight < 60)
+  {
+    seconds_to_midnight += 24 * 3600;
+  }
+
+  Serial.print("Entering deep sleep for ");
+  Serial.print(seconds_to_midnight);
+  Serial.println(" seconds until midnight");
+
+  // Wake up after calculated time
+  esp_sleep_enable_timer_wakeup((uint64_t)seconds_to_midnight * 1000000ULL);
+
   // Enter deep sleep
   esp_deep_sleep_start();
 }
