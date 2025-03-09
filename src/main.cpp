@@ -50,15 +50,6 @@ struct GPSConfig
 };
 
 /**
- * @struct SleepConfig
- * @brief Configuration for device sleep behavior
- */
-struct SleepConfig
-{
-  const uint64_t sleepTimeSeconds = 3600; // Sleep for 1 hour
-};
-
-/**
  * @struct LocationConfig
  * @brief Configuration for location-specific settings
  */
@@ -87,7 +78,6 @@ struct MoonPhaseText
 // Global configuration instances
 DisplayConfig displayConfig;
 GPSConfig gpsConfig;
-SleepConfig sleepConfig;
 LocationConfig locationConfig;
 MoonPhaseText moonText;
 
@@ -562,7 +552,7 @@ void displayInfo()
  * Calculates the time remaining until midnight and configures the device
  * to wake up at exactly midnight (00:00:00).
  */
-void sleep()
+void sleepUntilMidnight()
 {
   Serial.println("Calculating time until midnight...");
 
@@ -677,6 +667,6 @@ void loop()
     displayInfo();
     Serial.println("Hibernating the display");
     display.hibernate();
-    sleep();
+    sleepUntilMidnight();
   }
 }
