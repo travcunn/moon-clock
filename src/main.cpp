@@ -528,6 +528,7 @@ static void smartDelay(unsigned long ms)
 void setup()
 {
   Serial.begin(115200);
+  Serial.println("Setup started");
   gpsSerial.begin(gpsConfig.baudRate);
   initDisplay();
   display.hibernate();
@@ -570,8 +571,10 @@ void loop()
   // Update display and sleep if time is configured
   if (isTimeConfigured)
   {
+    Serial.println("Drawing the display");
     drawMoonPhaseSimple(day_utc, month_utc, year_utc);
     displayInfo();
+    Serial.println("Hibernating the display");
     display.hibernate();
     sleep();
   }
