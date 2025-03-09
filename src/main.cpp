@@ -17,6 +17,7 @@
 #include "moonphase.h"
 #include "timezone.h"
 #include "events.h"
+extern String getDefaultMoonPhaseText(double phase);
 
 #include "bitmaps/edwin_hubble.h"
 #include "bitmaps/higgs_boson.h"
@@ -359,20 +360,23 @@ void drawMoonPhase(double phase, int moonX, int moonY, int moonWidth, int moonHe
  *
  * @param events Vector of event strings
  */
-void drawEventText(std::vector<const char *> events)
+void drawEventText(const std::vector<const char *> &events, double phase)
 {
   display.setCursor(100, 460);
   display.setTextColor(GxEPD_WHITE);
   display.setFont(&FreeSans9pt7b);
   display.setTextSize(1);
 
+  // If there is an astro event scheduled, display its text.
+  // Otherwise, display a default text based on the current moon phase.
   if (!events.empty())
   {
     drawCenteredText(events[0], 470);
   }
   else
   {
-    drawCenteredText("1974: Stephen Hawking proposes black hole radiation (Hawking Radiation)", 470);
+    String defaultText = getDefaultMoonPhaseText(phase);
+    drawCenteredText(defaultText.c_str(), 470);
   }
 }
 
@@ -437,7 +441,7 @@ void drawMoonPhaseSimple(int day, int month, int year)
     }
 
     // Draw event text at the bottom
-    drawEventText(events);
+    drawEventText(events, phase);
 
   } while (display.nextPage());
 }
