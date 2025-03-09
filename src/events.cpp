@@ -7,6 +7,7 @@
  */
 
 #include <vector>
+#include <Arduino.h>
 
 struct AstroEvent
 {
@@ -133,4 +134,45 @@ std::vector<const char *> getAstroEventsOfTheDay(int day, int month)
         }
     }
     return matches;
+}
+
+/**
+ * @brief Returns a default text phrase based on the current moon phase.
+ *
+ * The returned phrase is chosen based on the moon phase value (ranging from 0 to 1)
+ * and maps it to one of eight tailored poetic phrases.
+ *
+ * @param phase Current moon phase value (0-1)
+ * @return String The default text phrase corresponding to the moon phase.
+ */
+String getDefaultMoonPhaseText(double phase)
+{
+    if (phase < 0.125 || phase >= 0.875)
+    {
+        return "In darkness, a new story begins.";
+    }
+    else if (phase < 0.25)
+    {
+        return "A slender smile of light promises a fresh start.";
+    }
+    else if (phase < 0.375)
+    {
+        return "Half revealed and full of potential.";
+    }
+    else if (phase < 0.5)
+    {
+        return "Growing in brilliance, the night unveils its secrets.";
+    }
+    else if (phase < 0.625)
+    {
+        return "Bathed in radiant glow, the night sings in silver.";
+    }
+    else if (phase < 0.75)
+    {
+        return "Softly fading, the glow whispers of transit.";
+    }
+    else // phase < 0.875
+    {
+        return "Half hidden, a time for quiet reflection.";
+    }
 }
