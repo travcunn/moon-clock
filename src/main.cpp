@@ -399,7 +399,7 @@ void drawMoonPhaseSimple(int day, int month, int year)
   display.firstPage();
   do
   {
-    if (day == 8 && month == 3)
+    if (day == 10 && month == 3)
     {
       display.fillScreen(GxEPD_BLACK);
       drawStephenHawkingImage(moonX, moonY);
