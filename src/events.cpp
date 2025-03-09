@@ -29,7 +29,6 @@ static const AstroEvent astroEvents[] = {
     {1, 2, "1959: Luna 1 passes near the Moon"},
     {1, 4, "2004: Spirit rover lands on Mars"},
     {1, 7, "1610: Galileo observes Jupiter's 4 largest moons"},
-    {1, 8, "1942: Stephen Hawking is born"},
     {1, 31, "1961: Ham the Chimp launched (Mercury-Redstone 2)"},
 
     // --- February (2) ---

@@ -19,6 +19,7 @@
 #include "events.h"
 
 #include "bitmaps/edwin_hubble.h"
+#include "bitmaps/higgs_boson.h"
 #include "bitmaps/john_glenn.h"
 #include "bitmaps/luna.h"
 #include "bitmaps/moon.h"
@@ -305,6 +306,19 @@ void drawJohnGlennImage(int moonX, int moonY)
 }
 
 /**
+ * @brief Draws Higgs Boson image for special date (July 7)
+ *
+ * @param moonX X-coordinate for the image
+ * @param moonY Y-coordinate for the image
+ */
+void drawHiggsBosonImage(int moonX, int moonY)
+{
+  display.drawBitmap(moonX, moonY, higgs_boson_bitmap,
+                     HIGGS_BOSON_HEIGHT, HIGGS_BOSON_WIDTH,
+                     GxEPD_WHITE);
+}
+
+/**
  * @brief Draws the appropriate moon phase visualization
  *
  * @param phase Moon phase value between 0 and 1
@@ -423,6 +437,11 @@ void drawMoonPhaseSimple(int day, int month, int year)
     {
       display.fillScreen(GxEPD_BLACK);
       drawJohnGlennImage(moonX, moonY);
+    }
+    else if (day == 7 && month == 4)
+    {
+      display.fillScreen(GxEPD_BLACK);
+      drawHiggsBosonImage(moonX, moonY);
     }
     else
     {
