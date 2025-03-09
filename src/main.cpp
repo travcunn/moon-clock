@@ -52,6 +52,13 @@ const String TXT_MOON_WANING_CRESCENT = "Morning Crescent";
 
 _MoonPhase m;
 
+/**
+ * @brief Utility function to draw a string at a specific position on the display
+ *
+ * @param x The x-coordinate position to start drawing the text
+ * @param y The y-coordinate position to start drawing the text
+ * @param text The string to be displayed
+ */
 void drawString(int x, int y, String text)
 {
   display.setCursor(x, y);
@@ -59,6 +66,14 @@ void drawString(int x, int y, String text)
 }
 // #########################################################################################
 
+/**
+ * @brief Calculates the Julian date from a Gregorian calendar date
+ *
+ * @param d Day of the month (1-31)
+ * @param m Month (1-12)
+ * @param y Year (e.g., 2025)
+ * @return int The Julian date
+ */
 int JulianDate(int d, int m, int y)
 {
   int mm, yy, k1, k2, k3, j;
@@ -76,6 +91,15 @@ int JulianDate(int d, int m, int y)
   return j;
 }
 
+/**
+ * @brief Calculates the normalized moon phase (0-1) for a given date
+ *
+ * @param d Day of the month (1-31)
+ * @param m Month (1-12)
+ * @param y Year (e.g., 2025)
+ * @return double A value between 0 and 1 representing the moon phase
+ *         (0 = new moon, 0.25 = first quarter, 0.5 = full moon, 0.75 = last quarter)
+ */
 double NormalizedMoonPhase(int d, int m, int y)
 {
   int j = JulianDate(d, m, y);
@@ -84,6 +108,15 @@ double NormalizedMoonPhase(int d, int m, int y)
   return (Phase - (int)Phase);
 }
 
+/**
+ * @brief Returns the textual description of the moon phase for a given date
+ *
+ * @param d Day of the month (1-31)
+ * @param m Month (1-12)
+ * @param y Year (e.g., 2025)
+ * @param hemisphere "north" or "south" - determines the appearance of the moon phase
+ * @return String Text description of the moon phase (e.g., "Full Moon", "New Moon")
+ */
 String MoonPhase(int d, int m, int y, String hemisphere)
 {
   int c, e;
@@ -124,6 +157,12 @@ String MoonPhase(int d, int m, int y, String hemisphere)
   return "";
 }
 
+/**
+ * @brief Displays the astronomy section with moon phase information
+ *
+ * @param x The x-coordinate position to start drawing the section
+ * @param y The y-coordinate position to start drawing the section
+ */
 void DisplayAstronomySection(int x, int y)
 {
   // display.drawRect(x, y, 409, 59, GxEPD_BLACK);
@@ -146,6 +185,14 @@ void DisplayAstronomySection(int x, int y)
   drawString(x + 30, y + 180, String(m.age) + " Days Moon Age");
 }
 
+/**
+ * @brief Prints the main display message with location, date, time, and weekday
+ *
+ * @param location The location string (latitude/longitude)
+ * @param date The formatted date string
+ * @param time The formatted time string
+ * @param weekday The day of the week
+ */
 void printDisplayMessage(String location, String date, String time, String weekday)
 {
   uint16_t x_time, y_time;
@@ -170,6 +217,12 @@ void printDisplayMessage(String location, String date, String time, String weekd
   } while (display.nextPage());
 }
 
+/**
+ * @brief Draws text centered horizontally on the display
+ *
+ * @param text The text to be displayed
+ * @param yBaseline The y-coordinate baseline position for the text
+ */
 void drawCenteredText(const char *text, int16_t yBaseline)
 {
   // 1) Measure the text width & height at the current font settings.
@@ -186,6 +239,17 @@ void drawCenteredText(const char *text, int16_t yBaseline)
   display.println(text);
 }
 
+/**
+ * @brief Draws a simple visualization of the moon phase for the given date
+ *
+ * This function draws a visual representation of the moon phase by using a white
+ * circle for the full moon and covering portions with black to show the current phase.
+ * On March 8th, it displays Stephen Hawking's image instead of the moon.
+ *
+ * @param day Day of the month (1-31)
+ * @param month Month (1-12)
+ * @param year Year (e.g., 2025)
+ */
 void drawMoonPhaseSimple(int day, int month, int year)
 {
   // NormalizedMoonPhase(d, m, y) should return [0..1]:
@@ -300,6 +364,12 @@ void drawMoonPhaseSimple(int day, int month, int year)
   } while (display.nextPage());
 }
 
+/**
+ * @brief Displays the current time, date, and location information on the e-ink display
+ *
+ * This function formats the time, date, and location data from the GPS and displays
+ * it on the e-ink screen along with the astronomy section.
+ */
 void displayInfo()
 {
   String locationBuffer;
@@ -376,6 +446,16 @@ void displayInfo()
   printDisplayMessage(locationBuffer, dateBuffer, timeBuffer, String(timeWeekDay));
 }
 
+/**
+ * @brief Sets the system time based on provided date and time values
+ *
+ * @param year Year (e.g., 2025)
+ * @param month Month (1-12)
+ * @param day Day of the month (1-31)
+ * @param hour Hour (0-23)
+ * @param minute Minute (0-59)
+ * @param second Second (0-59)
+ */
 void setSystemTime(int year, int month, int day, int hour, int minute, int second)
 {
   struct tm tmTime;
@@ -392,6 +472,11 @@ void setSystemTime(int year, int month, int day, int hour, int minute, int secon
   settimeofday(&tv, nullptr);
 }
 
+/**
+ * @brief Puts the device into deep sleep mode for power saving
+ *
+ * The device will wake up after the time specified by sleepTimeSeconds.
+ */
 void sleep()
 {
   Serial.println("Entering deep sleep");
@@ -401,8 +486,14 @@ void sleep()
   esp_deep_sleep_start();
 }
 
-// This custom version of delay() ensures that the gps object
-// is being "fed".
+/**
+ * @brief A custom version of delay() that continues to process GPS data
+ *
+ * This function ensures that the GPS object continues to receive and process
+ * data during the delay period, unlike the standard delay() function.
+ *
+ * @param ms The delay time in milliseconds
+ */
 static void smartDelay(unsigned long ms)
 {
   unsigned long start = millis();
@@ -413,6 +504,11 @@ static void smartDelay(unsigned long ms)
   } while (millis() - start < ms);
 }
 
+/**
+ * @brief Initializes the e-ink display with the required settings
+ *
+ * Sets up the display with proper rotation, text size, color, and other parameters.
+ */
 void initDisplay()
 {
   display.init(115200, true, 2, false);
@@ -427,6 +523,11 @@ void initDisplay()
   return;
 }
 
+/**
+ * @brief Arduino setup function, called once at startup
+ *
+ * Initializes serial communication, GPS module, and the e-ink display.
+ */
 void setup()
 {
   Serial.begin(115200);
@@ -437,6 +538,13 @@ void setup()
   display.hibernate();
 }
 
+/**
+ * @brief Arduino main loop function, called repeatedly
+ *
+ * Processes GPS data, configures system time when GPS data is valid,
+ * updates the display with moon phase and time information, and then
+ * puts the device into sleep mode to conserve power.
+ */
 void loop()
 {
   smartDelay(1000);

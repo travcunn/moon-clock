@@ -1,3 +1,11 @@
+/**
+ * @file events.cpp
+ * @brief Implementation of astronomical events functionality
+ *
+ * Contains a database of significant astronomical and space history events
+ * organized by date, and functions to retrieve events for specific dates.
+ */
+
 #include <vector>
 
 struct AstroEvent
@@ -7,6 +15,13 @@ struct AstroEvent
     const char *text;
 };
 
+/**
+ * @brief Database of astronomical and space history events
+ *
+ * This array contains significant events in astronomy and space exploration
+ * history, organized by month and day. Each entry includes the month, day,
+ * and a text description of the event.
+ */
 static const AstroEvent astroEvents[] = {
     // --- January (1) ---
     {1, 1, "1801: Piazzi discovers Ceres (first asteroid)"},
@@ -91,9 +106,23 @@ static const AstroEvent astroEvents[] = {
     {12, 30, "1924: Edwin Hubble announces galaxies beyond the Milky Way"},
 };
 
+/**
+ * @brief Number of events in the astroEvents array
+ *
+ * Calculated by dividing the total size of the array by the size of a single element.
+ */
 static const int numAstroEvents = sizeof(astroEvents) / sizeof(astroEvents[0]);
 
-// Returns all events matching the given day/month.
+/**
+ * @brief Retrieves astronomical events for a specific date
+ *
+ * This function searches through the astroEvents array and returns
+ * all events that match the specified day and month.
+ *
+ * @param day Day of the month (1-31)
+ * @param month Month (1-12)
+ * @return std::vector<const char *> Vector of event description strings
+ */
 std::vector<const char *> getAstroEventsOfTheDay(int day, int month)
 {
     std::vector<const char *> matches;

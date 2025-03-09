@@ -1,17 +1,21 @@
-// Calculate the phase and position of the moon for a given date.
-// The algorithm is simple and adequate for many purposes.
-//
-// This software was originally adapted to javascript by Stephen R. Schmitt
-// from a BASIC program from the 'Astronomical Computing' column of Sky & Telescope,
-// April 1994, page 86, written by Bradley E. Schaefer.
-//
-// Subsequently adapted from Stephen R. Schmitt's javascript to c++ for the Arduino
-// by Cyrus Rahman, this work is subject to Stephen Schmitt's copyright:
-//
-// Copyright 2004 Stephen R. Schmitt
-// You may use or modify this source code in any way you find useful, provided
-// that you agree that the author(s) have no warranty, obligations or liability.  You
-// must determine the suitability of this source code for your use.
+/**
+ * @file moonphase.cpp
+ * @brief Calculate the phase and position of the moon for a given date.
+ *
+ * The algorithm is simple and adequate for many purposes.
+ *
+ * This software was originally adapted to javascript by Stephen R. Schmitt
+ * from a BASIC program from the 'Astronomical Computing' column of Sky & Telescope,
+ * April 1994, page 86, written by Bradley E. Schaefer.
+ *
+ * Subsequently adapted from Stephen R. Schmitt's javascript to c++ for the Arduino
+ * by Cyrus Rahman, this work is subject to Stephen Schmitt's copyright:
+ *
+ * Copyright 2004 Stephen R. Schmitt
+ * You may use or modify this source code in any way you find useful, provided
+ * that you agree that the author(s) have no warranty, obligations or liability. You
+ * must determine the suitability of this source code for your use.
+ */
 
 #include <math.h>
 #include "MoonPhase.h"
@@ -28,7 +32,11 @@ static const char *zodiacNames[] = {"Pisces", "Aries", "Taurus", "Gemini", "Canc
 static const float zodiacAngles[] = {33.18, 51.16, 93.44, 119.48, 135.30, 173.34,
                                      224.17, 242.57, 271.26, 302.49, 311.72, 348.58};
 
-// Constructor initialization.
+/**
+ * @brief Constructor initialization for the _MoonPhase class
+ *
+ * Initializes all member variables to default values.
+ */
 _MoonPhase::_MoonPhase()
 {
     jDate = 0;
@@ -41,7 +49,14 @@ _MoonPhase::_MoonPhase()
     phaseName = zodiacName = "";
 }
 
-// Determine the Moon Phase and orbital positions for the specified time.
+/**
+ * @brief Determine the Moon Phase and orbital positions for the specified time
+ *
+ * Calculates various moon properties including phase, age, illuminated fraction,
+ * distance, latitude, longitude, and determines the zodiac constellation.
+ *
+ * @param t Unix timestamp (seconds since Jan 1, 1970)
+ */
 void _MoonPhase::calculate(time_t t)
 {
     jDate = _julianDate(t);
@@ -86,8 +101,15 @@ void _MoonPhase::calculate(time_t t)
     }
 }
 
-// Determine Julian date from Unix time.
-// Provides marginally accurate results with older Arduino 4-byte double.
+/**
+ * @brief Determine Julian date from Unix time
+ *
+ * Converts a Unix timestamp to Julian date format.
+ * Provides marginally accurate results with older Arduino 4-byte double.
+ *
+ * @param t Unix timestamp (seconds since Jan 1, 1970)
+ * @return double Julian date
+ */
 double
 _MoonPhase::_julianDate(time_t t)
 {

@@ -1,3 +1,25 @@
+/**
+ * @file timezone.cpp
+ * @brief Implementation of timezone decoding functionality
+ *
+ * This file contains the implementation of the decodeTimezone function
+ * which determines the timezone offset based on geographical coordinates.
+ * The implementation uses a series of conditional checks to determine
+ * the appropriate timezone for a given latitude and longitude.
+ */
+
+/**
+ * @brief Determines the timezone offset based on geographical coordinates
+ *
+ * This function contains a comprehensive set of geographic boundary checks
+ * to determine the appropriate timezone offset for a given location.
+ * The implementation covers all major timezone regions around the world,
+ * including special cases and regions with non-standard offsets.
+ *
+ * @param LAT Latitude in decimal degrees (positive for North, negative for South)
+ * @param LNG Longitude in decimal degrees (positive for East, negative for West)
+ * @return float Timezone offset in hours from UTC
+ */
 float decodeTimezone(double LAT, double LNG)
 {
     float zone_hours;
