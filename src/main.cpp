@@ -231,7 +231,7 @@ void drawMoonBackground(int moonX, int moonY, int moonWidth, int moonHeight)
   display.fillScreen(GxEPD_BLACK);
 
   // Draw the full moon bitmap in white
-  display.drawBitmap(moonX, moonY, Bitmap3c800x480_1_black,
+  display.drawBitmap(moonX, moonY, moon_bitmap,
                      moonWidth, moonHeight, GxEPD_WHITE);
 }
 
@@ -243,7 +243,7 @@ void drawMoonBackground(int moonX, int moonY, int moonWidth, int moonHeight)
  */
 void drawStephenHawkingImage(int moonX, int moonY)
 {
-  display.drawBitmap(moonX, moonY, steve_hawking_small,
+  display.drawBitmap(moonX, moonY, steve_hawking_bitmap,
                      STEVE_HAWKING_SMALL_WIDTH, STEVE_HAWKING_SMALL_HEIGHT,
                      GxEPD_WHITE);
 }
