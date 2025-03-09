@@ -174,7 +174,6 @@ void DisplayAstronomySection(int x, int y)
   const int month_utc = now_utc->tm_mon + 1;
   const int year_utc = now_utc->tm_year + 1900;
   drawString(x + 30, y, MoonPhase(day_utc, month_utc, year_utc, Hemisphere));
-  // DrawMoon(x + 250, y, day_utc, month_utc, year_utc, Hemisphere);
 
   time_t utcOffset = mktime(now_utc) - _now;
   m.calculate(_now + utcOffset);
