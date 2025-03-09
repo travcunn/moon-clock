@@ -19,6 +19,7 @@
 #include "events.h"
 
 #include "bitmaps/edwin_hubble.h"
+#include "bitmaps/john_glenn.h"
 #include "bitmaps/luna.h"
 #include "bitmaps/moon.h"
 #include "bitmaps/spirit_rover.h"
@@ -291,6 +292,19 @@ void drawSpiritRoverImage(int moonX, int moonY)
 }
 
 /**
+ * @brief Draws John Glenn image for special date (January 4)
+ *
+ * @param moonX X-coordinate for the image
+ * @param moonY Y-coordinate for the image
+ */
+void drawJohnGlennImage(int moonX, int moonY)
+{
+  display.drawBitmap(moonX, moonY, john_glenn_bitmap,
+                     JOHN_GLENN_WIDTH, JOHN_GLENN_HEIGHT,
+                     GxEPD_WHITE);
+}
+
+/**
  * @brief Draws the appropriate moon phase visualization
  *
  * @param phase Moon phase value between 0 and 1
@@ -385,7 +399,6 @@ void drawMoonPhaseSimple(int day, int month, int year)
   display.firstPage();
   do
   {
-    // Special case for March 8 (Stephen Hawking)
     if (day == 8 && month == 3)
     {
       display.fillScreen(GxEPD_BLACK);
@@ -405,6 +418,11 @@ void drawMoonPhaseSimple(int day, int month, int year)
     {
       display.fillScreen(GxEPD_BLACK);
       drawSpiritRoverImage(moonX, moonY);
+    }
+    else if (day == 20 && month == 2)
+    {
+      display.fillScreen(GxEPD_BLACK);
+      drawJohnGlennImage(moonX, moonY);
     }
     else
     {
