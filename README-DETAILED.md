@@ -43,7 +43,7 @@ This calculation provides the basis for determining not only the phase (new, cre
 To celebrate astronomical events and historical milestones:
 
 - **Special Dates:** The clock dynamically displays themed images and messages on significant dates, honoring space exploration and other celestial events.
-- **Deep Sleep Mode:** An ingenious power-saving feature puts the clock into a low-power state until the next update, ensuring efficient energy use without sacrificing performance.
+- **Deep Sleep Mode:** An power-saving feature puts the clock into a low-power state until the next update, ensuring efficient energy use without sacrificing performance.
 
 ## Rendering the Moon Image and Shadow
 
