@@ -1,19 +1,17 @@
-# How Your E-Ink Moon Clock Works: A Journey Through Time and Space
+# How Your E-Ink Moon Clock Works
 
 Hey there,
 
-Congrats on getting your new E-Ink Moon Clock! Let’s break down how this clock ticks.
+Congrats on getting your new E-Ink Moon Clock! I've been working on this for over a year and I'd like to share it with you.
 
 ## Hardware Overview
 
-This clock runs on carefully chosen parts that balance performance with a sleek look:
+This clock runs on carefully chosen parts:
 
 - **ESP32 Microcontroller:** The reliable processor that manages all tasks.
 - **7.5" Z08 E-Ink Display:** Delivers a paper-like, glare-free display that stays crisp even in bright sunlight.
 - **GPS Module:** Supplies ultra-accurate time and location data by tapping into satellite signals.
 - **E-Paper Driver HAT:** Makes sure the e-ink display updates smoothly and precisely.
-
-Each component was handpicked to ensure that your clock isn’t just about showing time—it’s about doing it with style and precision.
 
 ### Time and Date Management
 
@@ -35,7 +33,7 @@ This fraction is then used to determine the moon's phase (new, crescent, quarter
 
 ### Special Events & Deep Sleep Mode
 
-- **Special Dates:** On significant days—think major space milestones or celestial events—the clock spices things up with themed images and messages.
+- **Special Dates:** On significant days (major space milestones or celestial events), the displays shows themed images.
 - **Deep Sleep Mode:** To save power, the clock slips into a low-power state between updates, keeping energy use efficient without missing a beat.
 
 ## Rendering the Moon Image and Shadow
@@ -76,6 +74,11 @@ The $\( z \)$-component is $\( \cos(\alpha) \)$.
 - **E-Ink Display:** E-ink mimics the look of real paper, offering low eye strain and readability even in direct sunlight.
 - **Celestial Mathematics:** The same mathematical principles that govern planetary motion are at work in this clock, merging art and science seamlessly.
 
-## Conclusion
+## Source Code
 
-Your E-Ink Moon Clock isn’t just a tool for telling time—it’s a tribute to the wonder of the universe. From syncing with GPS satellites to dynamically shading a real photograph of the moon, every element is designed with precision and
+Check out the source code on GitHub: [github.com/travcunn/moon-clock](https://github.com/travcunn/moon-clock)
+
+Enjoy watching the passage of time, and let it remind you of the vast, beautiful universe we live in.
+
+Cheers,  
+Travis Cunningham
