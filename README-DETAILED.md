@@ -1,92 +1,81 @@
 # How Your E-Ink Moon Clock Works: A Journey Through Time and Space
 
-Dear Recipient,
+Hey there,
 
-Congratulations on receiving your new E-Ink Moon Clock—a marvel of art, engineering, and celestial computation! This document is my personal guide, explaining in detail the science behind the clock. I hope you find this journey as fascinating as the universe itself.
+Congrats on getting your new E-Ink Moon Clock—a cool blend of art, engineering, and a dash of celestial magic. Let’s break down how this clock ticks.
 
 ## Hardware Overview
 
-This clock is built around components that I personally selected for both performance and aesthetic appeal:
+This clock runs on carefully chosen parts that balance performance with a sleek look:
 
-- **ESP32 Microcontroller:** The powerful brain that orchestrates all operations.
-- **7.5" Z08 E-Ink Display:** Offers a paper-like, glare-free visual experience.
-- **GPS Module:** Provides precise time and geographic data.
-- **E-Paper Driver HAT:** Ensures smooth, accurate rendering on the e-ink display.
+- **ESP32 Microcontroller:** The reliable processor that manages all tasks.
+- **7.5" Z08 E-Ink Display:** Delivers a paper-like, glare-free display that stays crisp even in bright sunlight.
+- **GPS Module:** Supplies ultra-accurate time and location data by tapping into satellite signals.
+- **E-Paper Driver HAT:** Makes sure the e-ink display updates smoothly and precisely.
 
-I have chosen each component to ensure your clock not only tells time but does so with precision and beauty.
+Each component was handpicked to ensure that your clock isn’t just about showing time—it’s about doing it with style and precision.
 
 ## The Software and Algorithms
 
-At the core of this clock lie a series of algorithms, each contributing to the dynamic display of time, date, and the moon’s phase.
+Behind the scenes, a suite of smart algorithms makes sure your clock is always in sync with the cosmos.
 
 ### Time and Date Management
 
-Timekeeping is achieved by synchronizing with the GPS module, which supplies highly accurate time and location data. Advanced algorithms adjust for time zone differences and ensure seamless transitions even as the clock compensates for leap seconds and other astronomical variations.
+The clock synchronizes with the GPS module to pull in precise time and location information. It then automatically adjusts for time zones and even accounts for leap seconds and other astronomical quirks. This keeps your clock ticking accurately no matter where (or when) you are.
 
 ### Moon Phase Calculation
 
-The moon phase is computed using elegant astronomical equations. One fundamental formula I use is:
+The lunar phase is calculated using a simple yet effective formula:
 
 $$
 L = \frac{(d \mod 29.53)}{29.53}
 $$
 
-where:
-
-- \( d \) is the number of days since a known new moon,
-- \( L \) represents the fractional position in the lunar cycle.
-
-This calculation provides the basis for determining not only the phase (new, crescent, quarter, gibbous, full) but also the precise amount of illumination visible on the moon.
+Here, \( d \) represents the number of days since a known new moon. The value \( L \) (ranging from 0 to 1) marks your position in the lunar cycle—from one new moon to the next. This fraction is then used to determine the moon's phase (new, crescent, quarter, gibbous, full) and the exact amount of illumination visible.
 
 ### Special Events & Deep Sleep Mode
 
-To celebrate astronomical events and historical milestones:
-
-- **Special Dates:** The clock dynamically displays themed images and messages on significant dates, honoring space exploration and other celestial events.
-- **Deep Sleep Mode:** An power-saving feature puts the clock into a low-power state until the next update, ensuring efficient energy use without sacrificing performance.
+- **Special Dates:** On significant days—think major space milestones or celestial events—the clock spices things up with themed images and messages.
+- **Deep Sleep Mode:** To save power, the clock slips into a low-power state between updates, keeping energy use efficient without missing a beat.
 
 ## Rendering the Moon Image and Shadow
 
-At the heart of the display is a sharp photograph of the moon that I captured using a William Optics Zenithstar 81 telescope, with acquisition settings of `200 × 2.00ms` on October 23rd, 2023. This image serves as the canvas upon which the current lunar phase is artistically rendered.
+The clock features a high-resolution photograph of the moon, captured using a William Optics Zenithstar 81 telescope on October 23, 2023. This image forms the backdrop for a dynamic, real-time rendering of the lunar phase.
 
 ### Drawing the Moon Shadow
 
-The function `drawMoonPhase3D` implements a realistic 3D simulation of the moon’s illumination using Lambertian shading. First, it calculates the center and radius of the moon's circular bounding box and determines whether the phase is waxing or waning, which sets the direction of illumination (right for waxing, left for waning).
+The function `drawMoonPhase3D` creates a realistic 3D look of the moon’s illumination using Lambertian shading:
 
-Next, it computes the illuminated fraction \( f \) as:
-
-$$
-f = 1 - 2 \cdot \left| \phi - 0.5 \right|
-$$
-
-where \( \phi \) is the moon phase (0 for new, 0.5 for full, and returns to 0 for the next new moon). From \( f \), the sun’s angle \( \alpha \) is derived using:
-
-$$
-\alpha = \arccos(2f - 1)
-$$
-
-This yields a sun direction vector in the x–z plane with:
-
-- \( x \)-component: \( \sin(\alpha) \) (or \( -\sin(\alpha) \) for waning),
-- \( z \)-component: \( \cos(\alpha) \).
-
-The algorithm then iterates over each pixel within the moon’s bounding box. For pixels inside the moon’s circle, it computes normalized coordinates to determine the surface normal at that point. A Lambertian dot product between this normal and the sun direction vector is then calculated; if the dot product is non-positive, the pixel is rendered in shadow. This technique produces a smooth, realistic transition of illumination, accurately capturing the subtle interplay of light and shadow on the lunar surface.
+1. **Defining the Canvas:** It first calculates the moon’s center and radius within its display area.
+2. **Determining Illumination Direction:** Based on whether the moon is waxing (increasing) or waning (decreasing), the algorithm sets the light to come from the right (for waxing) or left (for waning).
+3. **Calculating Illumination:**
+   - The illuminated fraction \( f \) is computed as:
+     $$
+     f = 1 - 2 \cdot \left| \phi - 0.5 \right|
+     $$
+     where \( \phi \) is the normalized moon phase (0 at new moon, 0.5 at full moon, then back to 0).
+   - The sun’s angle \( \alpha \) is then derived from:
+     $$
+     \alpha = \arccos(2f - 1)
+     $$
+     This gives the sun’s direction in the x–z plane. The \( x \)-component is \( \sin(\alpha) \) (or its negative for waning), and the \( z \)-component is \( \cos(\alpha) \).
+4. **Rendering:** The algorithm goes through each pixel in the moon’s circle, computes its surface normal, and applies a Lambertian dot product with the sun direction. Pixels where the dot product is non-positive are rendered in shadow, creating a smooth, natural transition between light and dark areas.
 
 ## Fun Facts and Trivia
 
-- **Celestial Rhythms:** The lunar cycle lasts approximately 29.53 days, a period finely tuned by the gravitational dance of the Earth, Moon, and Sun.
-- **E-Ink Magic:** Unlike traditional displays, the e-ink technology mimics paper, reducing eye strain and remaining visible even under direct sunlight.
-- **Mathematical Beauty:** The same equations that govern the path of celestial bodies are at work in this clock, uniting art and science in a symphony of precision and creativity.
+- **Lunar Cycle:** The moon completes its cycle roughly every 29.53 days—a rhythm dictated by the gravitational interplay between the Earth, Moon, and Sun.
+- **E-Ink Display:** E-ink mimics the look of real paper, offering low eye strain and readability even in direct sunlight.
+- **Celestial Mathematics:** The same mathematical principles that govern planetary motion are at work in this clock, merging art and science seamlessly.
 
 ## Conclusion
 
-Your E-Ink Moon Clock is more than just a timepiece—it is an intersection of technology, engineering, and cosmic artistry. Every detail, from the precise synchronization with GPS data to the dynamic rendering of lunar shadows, reflects countless hours of design and development. I hope that, as you gaze upon your clock, you are reminded of the incredible wonders of the universe and the passion I have for unraveling its mysteries.
+Your E-Ink Moon Clock isn’t just a tool for telling time—it’s a tribute to the wonder of the universe. From syncing with GPS satellites to dynamically shading a real photograph of the moon, every element is designed with precision and a passion for the cosmos.
 
 ## Source Code
 
-For full details, updates and contributions, please visit the source code repository on GitHub: [https://github.com/travcunn/moon-clock](https://github.com/travcunn/moon-clock)
+For the nitty-gritty details, updates, and to contribute, check out the source code on GitHub: [github.com/travcunn/moon-clock](https://github.com/travcunn/moon-clock)
 
-Enjoy your journey through time and space!
+Enjoy watching the passage of time, and let it remind you of the vast, beautiful universe we live in.
 
-Sincerely,  
+Cheers,  
 Travis Cunningham
