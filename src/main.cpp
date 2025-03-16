@@ -356,6 +356,83 @@ void drawMoonPhase(double phase, int moonX, int moonY, int moonWidth, int moonHe
 }
 
 /**
+ * @brief Draws a 3D-simulated moon with a realistic illumination effect.
+ *
+ * The function simulates a spherical moon lit by the sun. The sun’s direction is computed
+ * based on the phase (0 and 1 = new moon, 0.5 = full moon). For each pixel within the
+ * moon’s circle, a Lambertian shading is applied using the dot product between the surface
+ * normal and the sun vector.
+ *
+ * @param phase Moon phase value between 0 and 1. (0 and 1 are new moon, 0.5 is full moon)
+ * @param moonX X-coordinate of the moon’s bounding box
+ * @param moonY Y-coordinate of the moon’s bounding box
+ * @param moonWidth Width of the moon’s bounding box (assumed circular)
+ * @param moonHeight Height of the moon’s bounding box (assumed equal to moonWidth)
+ */
+void drawMoonPhase3D(double phase, int moonX, int moonY, int moonWidth, int moonHeight)
+{
+  // Center and radius of the moon disc
+  int centerX = moonX + moonWidth / 2;
+  int centerY = moonY + moonHeight / 2;
+  int radius = moonWidth / 2; // assumes a circle
+
+  // Determine waxing vs. waning.
+  // For waxing (phase < 0.5) the illuminated side is on the right; for waning, on the left.
+  bool waxing = (phase < 0.5);
+
+  // Compute illuminated fraction f (ranges from 0 at new moon to 1 at full moon)
+  double f = 1.0 - 2.0 * fabs(phase - 0.5);
+  // Relate this to the sun’s angle α using the formula: (1 + cos(α)) / 2 = f.
+  double cosAlpha = 2.0 * f - 1.0;
+  // Clamp for safety
+  if (cosAlpha > 1.0)
+    cosAlpha = 1.0;
+  if (cosAlpha < -1.0)
+    cosAlpha = -1.0;
+  double alpha = acos(cosAlpha); // in radians
+
+  // Define the sun direction vector.
+  // We assume the light comes from the right if waxing, left if waning.
+  // Here the vector lies in the x-z plane, where z is “into the screen”.
+  double sunDirX = (waxing ? sin(alpha) : -sin(alpha));
+  double sunDirY = 0.0;
+  double sunDirZ = cos(alpha);
+
+  // Loop over each pixel in the bounding box.
+  for (int y = moonY; y < moonY + moonHeight; y++)
+  {
+    for (int x = moonX; x < moonX + moonWidth; x++)
+    {
+      // Normalize coordinates relative to the circle center: range [-1, 1]
+      double dx = (x - centerX) / (double)radius;
+      double dy = (y - centerY) / (double)radius;
+      double distanceSq = dx * dx + dy * dy;
+
+      // Process only the pixels inside the moon's circle.
+      if (distanceSq <= 1.0)
+      {
+        // Calculate the z coordinate on the sphere (positive hemisphere).
+        double dz = sqrt(1.0 - distanceSq);
+
+        // Surface normal at this point.
+        double nx = dx;
+        double ny = dy;
+        double nz = dz;
+
+        // Lambertian dot product (determines how much the surface is lit).
+        double dot = nx * sunDirX + ny * sunDirY + nz * sunDirZ;
+
+        // If the dot product is zero or negative, the pixel is in shadow.
+        if (dot <= 0)
+        {
+          display.drawPixel(x, y, GxEPD_BLACK);
+        }
+      }
+    }
+  }
+}
+
+/**
  * @brief Draws event text at the bottom of the display
  *
  * @param events Vector of event strings
@@ -436,7 +513,8 @@ void drawMoonPhaseSimple(int day, int month, int year)
       {
         // Draw moon background and phase
         drawMoonBackground(moonX, moonY, moonWidth, moonHeight);
-        drawMoonPhase(phase, moonX, moonY, moonWidth, moonHeight);
+        // drawMoonPhase(phase, moonX, moonY, moonWidth, moonHeight);
+        drawMoonPhase3D(phase, moonX, moonY, moonWidth, moonHeight);
       }
     }
 
