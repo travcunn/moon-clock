@@ -31,7 +31,11 @@ $$
 L = \frac{(d \mod 29.53)}{29.53}
 $$
 
-Here, \( d \) represents the number of days since a known new moon. The value \( L \) (ranging from 0 to 1) marks your position in the lunar cycle—from one new moon to the next. This fraction is then used to determine the moon's phase (new, crescent, quarter, gibbous, full) and the exact amount of illumination visible.
+Here, 
+- $\( d \)$ represents the number of days since a known new moon, and 
+- $\( L \)$ (ranging from 0 to 1) marks your position in the lunar cycle—from one new moon to the next.
+
+This fraction is then used to determine the moon's phase (new, crescent, quarter, gibbous, full) and the exact amount of illumination visible.
 
 ### Special Events & Deep Sleep Mode
 
@@ -49,17 +53,26 @@ The function `drawMoonPhase3D` creates a realistic 3D look of the moon’s illum
 1. **Defining the Canvas:** It first calculates the moon’s center and radius within its display area.
 2. **Determining Illumination Direction:** Based on whether the moon is waxing (increasing) or waning (decreasing), the algorithm sets the light to come from the right (for waxing) or left (for waning).
 3. **Calculating Illumination:**
-   - The illuminated fraction \( f \) is computed as:
-     $$
-     f = 1 - 2 \cdot \left| \phi - 0.5 \right|
-     $$
-     where \( \phi \) is the normalized moon phase (0 at new moon, 0.5 at full moon, then back to 0).
-   - The sun’s angle \( \alpha \) is then derived from:
-     $$
-     \alpha = \arccos(2f - 1)
-     $$
-     This gives the sun’s direction in the x–z plane. The \( x \)-component is \( \sin(\alpha) \) (or its negative for waning), and the \( z \)-component is \( \cos(\alpha) \).
-4. **Rendering:** The algorithm goes through each pixel in the moon’s circle, computes its surface normal, and applies a Lambertian dot product with the sun direction. Pixels where the dot product is non-positive are rendered in shadow, creating a smooth, natural transition between light and dark areas.
+The illuminated fraction $\( f \)$ is computed as:
+   
+$$
+f = 1 - 2 \cdot \left| \phi - 0.5 \right|
+$$
+   
+where $\( \phi \)$ is the normalized moon phase (0 at new moon, 0.5 at full moon, then back to 0).
+   
+The sun’s angle $\( \alpha \)$ is derived from:
+   
+$$
+\alpha = \arccos(2f - 1)
+$$
+   
+This provides the sun’s direction in the x–z plane:
+     
+The $\( x \)$-component is $\( \sin(\alpha) \)$ (or its negative for waning).
+The $\( z \)$-component is $\( \cos(\alpha) \)$.
+   
+4. **Rendering:** The algorithm iterates over each pixel within the moon’s circle, computes its surface normal, and applies a Lambertian dot product with the sun direction. Pixels where the dot product is non-positive are rendered in shadow, creating a smooth, natural transition between light and dark areas.
 
 ## Fun Facts and Trivia
 
@@ -69,13 +82,4 @@ The function `drawMoonPhase3D` creates a realistic 3D look of the moon’s illum
 
 ## Conclusion
 
-Your E-Ink Moon Clock isn’t just a tool for telling time—it’s a tribute to the wonder of the universe. From syncing with GPS satellites to dynamically shading a real photograph of the moon, every element is designed with precision and a passion for the cosmos.
-
-## Source Code
-
-For the nitty-gritty details, updates, and to contribute, check out the source code on GitHub: [github.com/travcunn/moon-clock](https://github.com/travcunn/moon-clock)
-
-Enjoy watching the passage of time, and let it remind you of the vast, beautiful universe we live in.
-
-Cheers,  
-Travis Cunningham
+Your E-Ink Moon Clock isn’t just a tool for telling time—it’s a tribute to the wonder of the universe. From syncing with GPS satellites to dynamically shading a real photograph of the moon, every element is designed with precision and
