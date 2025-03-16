@@ -2,18 +2,18 @@
 
 Dear Recipient,
 
-Congratulations on receiving your new E-Ink Moon Clock—a marvel of art, engineering, and celestial computation! This document is my personal guide, explaining in detail the science and ingenuity behind the clock. Whether you’re a seasoned physicist, a math enthusiast, or simply a lover of the cosmos, I hope you find this journey as fascinating as the universe itself.
+Congratulations on receiving your new E-Ink Moon Clock—a marvel of art, engineering, and celestial computation! This document is my personal guide, explaining in detail the science behind the clock. I hope you find this journey as fascinating as the universe itself.
 
 ## Hardware Overview
 
-This clock is built around cutting-edge components that I personally selected for both performance and aesthetic appeal:
+This clock is built around components that I personally selected for both performance and aesthetic appeal:
 
 - **ESP32 Microcontroller:** The powerful brain that orchestrates all operations.
 - **7.5" Z08 E-Ink Display:** Offers a paper-like, glare-free visual experience.
 - **GPS Module:** Provides precise time and geographic data.
 - **E-Paper Driver HAT:** Ensures smooth, accurate rendering on the e-ink display.
 
-I have meticulously chosen each component to ensure your clock not only tells time but does so with extraordinary precision and beauty.
+I have chosen each component to ensure your clock not only tells time but does so with precision and beauty.
 
 ## The Software and Algorithms
 
@@ -47,7 +47,7 @@ To celebrate astronomical events and historical milestones:
 
 ## Rendering the Moon Image and Shadow
 
-At the heart of the display is a stunning photograph of the moon that I captured using a William Optics Zenithstar 81 telescope, with acquisition settings of `200 × 2.00ms` on October 23rd, 2023. This image serves as the canvas upon which the current lunar phase is artistically rendered.
+At the heart of the display is a sharp photograph of the moon that I captured using a William Optics Zenithstar 81 telescope, with acquisition settings of `200 × 2.00ms` on October 23rd, 2023. This image serves as the canvas upon which the current lunar phase is artistically rendered.
 
 ### Drawing the Moon Shadow
 
@@ -80,20 +80,7 @@ The algorithm then iterates over each pixel within the moon’s bounding box. Fo
 
 ## Conclusion
 
-Your E-Ink Moon Clock is more than just a timepiece—it is an intersection of advanced technology, meticulous engineering, and cosmic artistry. Every detail, from the precise synchronization with GPS data to the dynamic rendering of lunar shadows, reflects countless hours of design and development. I hope that, as you gaze upon your clock, you are reminded of the incredible wonders of the universe and the passion I have for unraveling its mysteries.
-
-## Project Structure Overview
-
-For those who appreciate the craftsmanship behind the scenes, here’s a brief overview of the project’s structure:
-
-- **src/** — Contains the source code, including main application logic, moon phase calculations, event handling, and timezone computations.
-- **docs/** — Hosts additional documentation and visual assets.
-- **images/** — Holds all the images used in the project, including the featured moon photograph.
-- **include/** and **lib/** — Provide supporting files and libraries that enable seamless hardware-software integration.
-- **platformio.ini:** The configuration file for PlatformIO, which simplifies the building and uploading of firmware.
-- **clock.code-workspace:** A Visual Studio Code workspace file configured to streamline the development environment.
-
-This structured approach facilitates both innovation and maintenance, ensuring that every component contributes to the overall masterpiece that is your E-Ink Moon Clock.
+Your E-Ink Moon Clock is more than just a timepiece—it is an intersection of technology, engineering, and cosmic artistry. Every detail, from the precise synchronization with GPS data to the dynamic rendering of lunar shadows, reflects countless hours of design and development. I hope that, as you gaze upon your clock, you are reminded of the incredible wonders of the universe and the passion I have for unraveling its mysteries.
 
 ## Source Code
 
