@@ -2,7 +2,7 @@
 
 Hey there,
 
-I’ve poured over a year of work into this and I’m excited to share the details with you.
+I created a moon phase clock and I’m excited to share the details with you.
 
 ## Hardware Overview
 
