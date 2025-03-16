@@ -487,21 +487,21 @@ void drawMoonPhaseSimple(int day, int month, int year)
     {
       struct SpecialDate
       {
-        int day;
         int month;
+        int day;
         void (*drawImage)(int, int);
       };
       static const SpecialDate specialDates[] = {
-          {10, 3, drawStephenHawkingImage},
+          {3, 10, drawStephenHawkingImage},
           {1, 1, drawEdwinHubbleImage},
-          {2, 1, drawLunaImage},
-          {4, 1, drawSpiritRoverImage},
-          {20, 2, drawJohnGlennImage},
-          {7, 4, drawHiggsBosonImage}};
+          {1, 2, drawLunaImage},
+          {1, 4, drawSpiritRoverImage},
+          {2, 20, drawJohnGlennImage},
+          {4, 7, drawHiggsBosonImage}};
       bool specialDrawn = false;
       for (auto &sd : specialDates)
       {
-        if (day == sd.day && month == sd.month)
+        if (month == sd.month && day == sd.day)
         {
           display.fillScreen(GxEPD_BLACK);
           sd.drawImage(moonX, moonY);
