@@ -36,6 +36,10 @@ This project is an ESP32-based e-ink display clock that visualizes time, date, a
 
 ![Back View](docs/back.jpg)
 
+## Moon Photography
+
+A sharp image of the moon was captured by Travis Cunningham using acquisition settings of `200 × 2.00ms` with a William Optics Zenithstar 81 telescope on October 23rd, 2023. [View the original image here](https://app.astrobin.com/i/wigun7). This photograph is used to render the moon display on the clock’s e-ink panel.
+
 ## Getting Started
 
 1. **Hardware Setup:** Connect the e-ink display and the GPS module as specified. Ensure all wiring is according to the project schematic.
