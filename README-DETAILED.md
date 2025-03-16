@@ -2,7 +2,7 @@
 
 Hey there,
 
-Congrats on getting your new E-Ink Moon Clock—a cool blend of art, engineering, and a dash of celestial magic. Let’s break down how this clock ticks.
+Congrats on getting your new E-Ink Moon Clock—a cool blend of art, engineering, and a dash of celestial magic. Let’s break down how this clock ticks (and glows) without any fluff.
 
 ## Hardware Overview
 
