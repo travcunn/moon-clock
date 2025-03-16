@@ -15,10 +15,6 @@ This clock runs on carefully chosen parts that balance performance with a sleek 
 
 Each component was handpicked to ensure that your clock isn’t just about showing time—it’s about doing it with style and precision.
 
-## The Software and Algorithms
-
-Behind the scenes, a suite of smart algorithms makes sure your clock is always in sync with the cosmos.
-
 ### Time and Date Management
 
 The clock synchronizes with the GPS module to pull in precise time and location information. It then automatically adjusts for time zones and even accounts for leap seconds and other astronomical quirks. This keeps your clock ticking accurately no matter where (or when) you are.
